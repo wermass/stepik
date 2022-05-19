@@ -171,3 +171,112 @@ def start(message):
     
 import time
   time.sleep(1)
+  
+  
+Клавиатура (с условием) (это та, которая выходит в меню, под "введите сообщение")
+
+@bot.message_handler(regexp= r"Купить")
+def start(message):
+    startKBoard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    stone = types.KeyboardButton(text="Камень с глазами")
+    back =types.KeyboardButton(text='Назад')
+    startKBoard.add(stone, back)
+    bot.send_message(message.chat.id, "Что хотите купить?", reply_markup=startKBoard)  
+    
+    
+    
+Чтобы убрать клавиатуру в reply_markup нужно передать types.ReplyKeyboardRemove():
+
+bot.send_message(message.chat.id, "Убираем клавиатуру", reply_markup=types.ReplyKeyboardRemove())
+
+
+Чтобы создать клавиатуру, которая исчезнет при нажатии кнопки, нужно в параметр one_time_keyboard передать True.
+
+Пример создания такой клавиатуры:
+
+
+from telebot import types
+
+
+
+@bot.message_handler(commands=['keyboard'])
+def keyboard_start(message):
+    kb = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1, one_time_keyboard=True)
+    btn1 = types.KeyboardButton(text="Кнопка 1")
+    btn2 = types.KeyboardButton(text="Кнопка 2")
+    kb.add(btn1, btn2)
+    bot.send_message(message.chat.id, "Это одноразовая клавиатура!", reply_markup=kb)
+
+
+
+
+Кнопка используется с клавиатурой InlineKeyboardMarkup, давайте создадим кнопку «Наш сайт»: (это которая находится в тексте)
+
+
+from telebot import types
+
+
+
+@bot.message_handler(commands = ['url'])
+def url(message):
+    markup = types.InlineKeyboardMarkup()
+    btn_my_site = types.InlineKeyboardButton(text='Наш сайт', url='https://stepik.org/')
+    markup.add(btn_my_site)
+    bot.send_message(message.chat.id, "Нажми на кнопку и перейди на наш сайт.", reply_markup=markup)
+
+
+
+Switch-кнопки (перенаправления бота в другой чат) # нахуй это нужно?
+
+
+
+from telebot import types
+
+
+
+@bot.message_handler(commands = ['switch'])
+def switch(message):
+    markup = types.InlineKeyboardMarkup()
+    switch_button = types.InlineKeyboardButton(text='Try', switch_inline_query="Telegram")
+    markup.add(switch_button)
+    bot.send_message(message.chat.id, "Выбрать чат", reply_markup = markup)
+
+
+
+
+Callback-кнопки
+
+from telebot import types
+
+
+
+
+@bot.message_handler(commands=['callback'])
+def cmd_start(message):
+    start_keyboard = types.InlineKeyboardMarkup()
+    Hack_Pentagon = types.InlineKeyboardButton(text='Hack Pentagon', callback_data='HackPentagon')
+    Snorovka_School = types.InlineKeyboardButton(text='Snorovka School', callback_data='SnorovkaSchool')
+    start_keyboard.add(Hack_Pentagon, Snorovka_School)
+    bot.send_message(message.chat.id, 'А вот и callback кнопки!', reply_markup=start_keyboard)
+
+
+#Если получаем callback ответ с клавиатуры запускаем функцию answer_callback
+@bot.callback_query_handler(func=lambda c:c.data)
+def answer_callback(callback):
+    if callback.data == 'SnorovkaSchool':
+        #Что-то делаем
+    elif callback.data == 'HackPentagon':
+        #Взламываем Пентагон
+
+
+
+Количество кнопок в строке можно задать с помощью row_width:
+
+start_keyboard = types.InlineKeyboardMarkup(row_width = 1)
+Вот так будут выглядеть кнопки при row_width = 1:
+
+Чтобы получить message из callback достаточно написать: callback.message
+
+Теперь мы можем использовать message так, как хотим. Например, после получения callback отправим сообщение:
+
+bot.send_message(callback.message.chat.id,"Ты нажал на кнопку")
